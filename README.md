@@ -3,6 +3,14 @@
 ## Introduction
 The process for copying a Drupal site is anything but strightforward.  Despite numerous suggestions and guides out there it is difficult to find a complete workflow that actually works reliably for getting a site that's out there live copied into a local development environment where is can be accessed with a local domain name (i.e. - drupal.com -> drupal.dev).
 
+## Config Setup
+
+### General Config
+Overall configuration for the gsDrupalClone is set through the file `~/.gs_drupal_clone/conf/clone.conf.php`.
+
+### Site Specific Config
+Each site you will be replicating needs a config file.  The file should be located in `~/.gs_drupal_clone/conf` and should be named `<sitename>.conf.php`.
+
 ## Running the Script
 ```
 $ gsDrupalClone <sitename>
