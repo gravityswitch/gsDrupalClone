@@ -1,4 +1,19 @@
 <?php
+/**
+ * File site.conf.php.default
+ *
+ * Config file for gsDrupalClone
+ *
+ * PHP version 5
+ *
+ * @category  Drupal_Scripts
+ * @package   GSDrupalClone
+ * @author    Chris Slack <chris@gravityswitch.com>
+ * @copyright 2015 Gravity Switch
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      http://www.gravityswitch.com
+ */
+
 $SITE_CONF = array (
   // Remote Site Information
 
@@ -11,6 +26,4 @@ $SITE_CONF = array (
 
   // Local Site Information
   'localSite' => "<LOCAL SITE NAME WITHOUT TLD>"
-
-); 
-?>
+);

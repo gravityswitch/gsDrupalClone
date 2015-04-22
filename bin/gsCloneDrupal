@@ -1,81 +1,93 @@
 #!/usr/bin/php
 <?php
+/**
+ * File gsDrupalClone.php
+ *
+ * This script has the following prerequsites:
+ *   1.  You must have an ssh key setup for a user with appropriate
+ *       access on the remote server.
+ *   2.  You must have a local development environment setup on your
+ *       system which includes PHP, mysql, apache, and drush.
+ *
+ * PHP version 5
+ *
+ * @category  Drupal_Scripts
+ * @package   GSDrupalClone
+ * @author    Chris Slack <chris@gravityswitch.com>
+ * @copyright 2015 Gravity Switch
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      http://www.gravityswitch.com
+ */
 
-	// This script has the following prerequsites:
-	//   1.  You must have an ssh key setup for a user with appropriate
-    //       access on the remote server.
-	//   2.  You must have a local development environment setup on your
-	//	     system which includes PHP, mysql, apache, and drush.
+$configDir = $_SERVER["HOME"] . "/.gs_drupal_clone/conf/";
+$includeDir = $_SERVER["HOME"] . "/.gs_drupal_clone/inc/";
 
-	$configDir = $_SERVER["HOME"] . "/.gs_drupal_clone/conf/";
-	$includeDir = $_SERVER["HOME"] . "/.gs_drupal_clone/inc/";
+// Include the core functions for gsDrupalClone
+require $includeDir . "gsDrupalCloneFunctions.php";
 
-	// Include the core functions for gsDrupalClone
-	include $includeDir . "gsDrupalCloneFunctions.php";
+// Read in the general config file for gsDrupalClone
+require $configDir . "clone.conf.php";
 
-	// Read in the general config file for gsDrupalClone
-	include $configDir . "clone.conf.php";
+// Read in command line arguments
+if ($argc != 2) {
+    // Show usage if wrong number of args
+    echo "\nUsage: $argv[0] <sitename>\n\n";
 
-	// Read in command line arguments
-	if ( $argc != 2 ) {
+    exit;
 
-		// Show usage if wrong number of args
-		echo "\nUsage: $argv[0] <sitename>\n\n";
+} else {
+    // The site name should be the only argument passed into the script
+    $siteName = $argv[1];
 
-		exit;
+    if (!file_exists($configDir . "$siteName.conf.php")) {
+        echo "ERROR! " . $configDir . "$siteName.conf.php" . " does not exist.\n\n";
+        echo "Go to $configDir and copy the site.conf.php.default 
+            file to $siteName.conf.php and edit as required.\n\n";
+        exit();
+    }
 
-	} else {
+    // Include the site specific configuration
+    include $configDir . "$siteName.conf.php";
 
-		// The site name should be the only argument passed into the script
-		$siteName = $argv[1];
+    // Make sure our directories exist
+    setupDirs($CLONE_CONF, $SITE_CONF);
 
-		if ( !file_exists($configDir . "$siteName.conf.php") ) {
-			echo "ERROR! " . $configDir . "$siteName.conf.php" . " does not exist.\n\n";
-			echo "Go to $configDir and copy the site.conf.php.default file to $siteName.conf.php and edit as required.\n\n";
-			exit();
-		}
+    // Create and setup the Drush alias file for this site
+    setupAliasFile($CLONE_CONF, $SITE_CONF);
 
-		// Include the site specific configuration
-		include $configDir . "$siteName.conf.php";
+    // Include the aliases file
+    include $_SERVER["HOME"] . "/.drush/$siteName.aliases.drushrc.php";
 
-		// Make sure our directories exist
-		setupDirs($CLONE_CONF, $SITE_CONF);
+    $remoteSite = $SITE_CONF['remoteSite'];
+    $localSite = $SITE_CONF['localSite'];
+    $localDevTLD = $CLONE_CONF['localDevTLD'];
 
-		// Create and setup the Drush alias file for this site
-		setupAliasFile($CLONE_CONF, $SITE_CONF);
+    $remoteDir = $aliases["$remoteSite"]['root'];
+    $baseDir = $CLONE_CONF['baseDir'] . "$localSite";
 
-		// Include the aliases file
-		include $_SERVER["HOME"] . "/.drush/$siteName.aliases.drushrc.php";
+    // Make the local DB named the same as the remote for simplicity
+    $dbLocalName = $aliases["$remoteSite"]["databases"]["default"]
+        ["default"]["database"];
+    $dbLocalUser = $aliases["$remoteSite"]["databases"]["default"]
+        ["default"]["username"];
+    $dbLocalPassword = $aliases["$remoteSite"]["databases"]["default"]
+        ["default"]["password"];
 
-		$remoteSite = $SITE_CONF['remoteSite'];
-		$localSite = $SITE_CONF['localSite'];
-		$localDevTLD = $CLONE_CONF['localDevTLD'];
+    // Get the files from the remote server and copy to the
+    // local env
+    syncFiles($CLONE_CONF, $SITE_CONF);
 
-		$remoteDir = $aliases["$remoteSite"]['root'];
-		$baseDir = $CLONE_CONF['baseDir'] . "$localSite";
+    // Setup the local database - this will blow away any current DB with
+    // the same name
+    setupDB($CLONE_CONF, $dbLocalName, $dbLocalUser, $dbLocalPassword);
 
-		// Make the local DB named the same as the remote for simplicity
-		$dbLocalName = $aliases["$remoteSite"]["databases"]["default"]["default"]["database"];
-		$dbLocalUser = $aliases["$remoteSite"]["databases"]["default"]["default"]["username"];
-		$dbLocalPassword = $aliases["$remoteSite"]["databases"]["default"]["default"]["password"];
+    // Populate the local database from the remote
+    populateDB($CLONE_CONF, $SITE_CONF, $dbLocalName);
 
-		// Get the files from the remote server and copy to the 
-		// local env
-		syncFiles($CLONE_CONF, $SITE_CONF);
+    // Turn off clean URLs locally and turn back on - this
+    // is necessary for proper operation in the new env
+    resetCleanURLs($CLONE_CONF, $SITE_CONF);
 
-		// Setup the local database - this will blow away any current DB with
-		// the same name
-		setupDB($CLONE_CONF, $dbLocalName, $dbLocalUser, $dbLocalPassword);
-
-		// Populate the local database from the remote
-		populateDB($CLONE_CONF, $SITE_CONF, $dbLocalName);
-
-		// Turn off clean URLs locally and turn back on - this
-		// is necessary for proper operation in the new env
-		resetCleanURLs($CLONE_CONF, $SITE_CONF);
-
-		echo "\nClone Complete.\n\n";
-		echo "Access the site at: http://$localSite.$localDevTLD\n\n";
-	}
-
-?>
+    echo "\nClone Complete.\n\n";
+    echo "Access the site at: http://$localSite.$localDevTLD\n\n";
+}

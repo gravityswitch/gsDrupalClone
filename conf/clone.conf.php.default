@@ -1,4 +1,18 @@
 <?php
+/**
+ * File clone.conf.php.default
+ *
+ * Config file for gsDrupalClone
+ *
+ * PHP version 5
+ *
+ * @category  Drupal_Scripts
+ * @package   GSDrupalClone
+ * @author    Chris Slack <chris@gravityswitch.com>
+ * @copyright 2015 Gravity Switch
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      http://www.gravityswitch.com
+ */
 
 $CLONE_CONF = array (
 
@@ -23,5 +37,3 @@ $CLONE_CONF = array (
   // The path to drush, set below for the default composer install
   'drush' => $_SERVER["HOME"] . "/.composer/vendor/bin/drush"
 );
-
-?>
