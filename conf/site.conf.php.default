@@ -1,0 +1,16 @@
+<?php
+$SITE_CONF = array (
+  // Remote Site Information
+
+  // This must be the name that is used within Drupal itself, so if there
+  // are multiple aliases for the site the primary domain must be used
+  // i.e. - if foo.net redirects to foo.com then use foo.com here
+  'remoteSite' => "<REMOTE SITE FQDN>",
+  'remoteUser' => "<SERVER USERNAME>",
+  'remoteDir' => "<SERVER FULL PATH TO SITE>",
+
+  // Local Site Information
+  'localSite' => "<LOCAL SITE NAME WITHOUT TLD>"
+
+); 
+?>

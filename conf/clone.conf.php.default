@@ -1,0 +1,27 @@
+<?php
+
+$CLONE_CONF = array (
+
+  // Your local database server, usually localhost
+  'dbLocalServerName' => "localhost",
+
+  // Username and password for a MySQL user that can create databases
+  'dbRootUsername' => "root",
+  'dbRootPassword' => "<YOUR MYSQL PASSWORD>",
+
+  // Within your local dev env the name of the final path piece
+  // i.e. - htdocs or wwwroot
+  'wwwroot' => "wwwroot",
+
+  // The pseudo top level domain name for your local dev env
+  // this is usually ".dev"
+  'localDevTLD' => "dev",
+
+  // The base dir of your local dev environment
+  'baseDir' => $_SERVER["HOME"] . "/www/sites/",
+
+  // The path to drush, set below for the default composer install
+  'drush' => $_SERVER["HOME"] . "/.composer/vendor/bin/drush"
+);
+
+?>
