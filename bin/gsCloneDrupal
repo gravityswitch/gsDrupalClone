@@ -7,8 +7,8 @@
 	//   2.  You must have a local development environment setup on your
 	//	     system which includes PHP, mysql, apache, and drush.
 
-	$configDir = $_SERVER["HOME"] . "/.gs_drupal_clone/conf";
-	$includeDir = $_SERVER["HOME"] . "/.gs_drupal_clone/inc";
+	$configDir = $_SERVER["HOME"] . "/.gs_drupal_clone/conf/";
+	$includeDir = $_SERVER["HOME"] . "/.gs_drupal_clone/inc/";
 
 	// Include the core functions for gsDrupalClone
 	include $includeDir . "gsDrupalCloneFunctions.php";
