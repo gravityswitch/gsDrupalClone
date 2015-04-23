@@ -77,6 +77,9 @@ if ($argc != 2) {
     // local env
     syncFiles($CLONE_CONF, $SITE_CONF);
 
+    // Create the settings.php file
+    setupSettingsFile($CLONE_CONF, $SITE_CONF, $dbLocalName, $dbLocalUser, $dbLocalPassword);
+
     // Setup the local database - this will blow away any current DB with
     // the same name
     setupDB($CLONE_CONF, $dbLocalName, $dbLocalUser, $dbLocalPassword);

@@ -89,10 +89,11 @@ function setupAliasFile($CLONE_CONF, $SITE_CONF)
     include ".$localSite.alias.tmp";
 
     // Delete the temp files
-    unlink("$aliasFile.tmp");
-    unlink(".$localSite.alias.tmp");
+    // unlink("$aliasFile.tmp");
+    // unlink(".$localSite.alias.tmp");
+    $siteKey = array_keys($aliases);
 
-    $aliases["$remoteSite"] = $aliases["self"];
+    $aliases["$remoteSite"] = $aliases[$siteKey[0]];
     $aliases["$localSite.$localDevTLD"] = $aliases["$remoteSite"];
 
     // Update the array with remote information
@@ -120,6 +121,62 @@ function setupAliasFile($CLONE_CONF, $SITE_CONF)
 
 
 /**
+ * Function setupSettingsFile
+ *
+ * Creates and sets up the drush alias file for the remote and local envs in the
+ * ~/.drush directory
+ *
+ * @param array $CLONE_CONF Overall config array
+ * @param array $SITE_CONF  Site specific config array
+ *
+ * @return none
+ */
+function setupSettingsFile(
+    $CLONE_CONF,
+    $SITE_CONF,
+    $dbLocalName,
+    $dbLocalUser,
+    $dbLocalPassword
+) {
+
+    //global $aliases;
+    $localSite = $SITE_CONF['localSite'];
+    $localDevTLD = $CLONE_CONF['localDevTLD'];
+    $baseDir = $CLONE_CONF['baseDir'];
+    $wwwroot = $CLONE_CONF['wwwroot'];
+
+    $dbLocalServername = $CLONE_CONF['dbLocalServerName'];
+    $dbRootUsername = $CLONE_CONF['dbRootUsername'];
+    $dbRootPassword = $CLONE_CONF['dbRootPassword'];
+
+    $settingsFile = $baseDir . $localSite . "/" . $wwwroot .
+        "/sites/default/settings.php";
+    
+    // Write the array back out to the alias file in PHP format
+    $databases = array();
+
+    $databases['default'] = array();
+    $databases['default']['default'] = array();
+
+    $databases['default']['default']['database'] = $dbLocalName;
+    $databases['default']['default']['username'] = $dbLocalUser;
+    $databases['default']['default']['password'] = $dbLocalPassword;
+    $databases['default']['default']['host'] = "localhost";
+    $databases['default']['default']['port'] = "";
+    $databases['default']['default']['driver'] = "mysql";
+    $databases['default']['default']['prefix'] = "";
+
+    $results = "<?php\n\$databases = " .
+        var_export($databases, true) . ";\n";
+
+    file_put_contents($settingsFile, $results);
+
+    echo "Created settings.php file " . $settingsFile . " [OK]\n";
+
+}
+
+
+/**
  *Function syncFiles
  *
  * Uses drush to rsync files from the remote server to the local env
@@ -141,13 +198,16 @@ function syncFiles($CLONE_CONF, $SITE_CONF)
 
     // Copy all of the files from the server with rsync/scp
     echo "Syncing files, this may take a while...\n";
+    // shell_exec(
+    //     "drush -y rsync --include-conf @$remoteSite \
+    //     @$localSite.$localDevTLD"
+    // );
     shell_exec(
-        "drush -y rsync --include-conf @$remoteSite \
+        "drush -y rsync  @$remoteSite \
         @$localSite.$localDevTLD"
     );
-
     // Need to make sure files are readable by local web server
-    shell_exec("chmod -R 755 $baseDir/$wwwroot/*");
+    shell_exec("chmod -R 755 $baseDir/*");
 
     echo "Files synced [OK]\n";
 
@@ -239,7 +299,6 @@ function populateDB($CLONE_CONF, $SITE_CONF, $dbLocalName)
 
     // Dump DB from server
     $remoteDump = shell_exec("drush @$remoteSite sql-dump");
-
     // Modify the DB dump from server to reflect the local env
     // Equiv of the following sed command:
     $sql = preg_replace(
