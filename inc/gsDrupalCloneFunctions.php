@@ -306,7 +306,7 @@ function populateDB($CLONE_CONF, $SITE_CONF, $dbLocalName)
     // Equiv of the following sed command:
     // LANG=C sed 's/stiebel\.gravityswitch\.com/stiebel\.dev/g' stiebel.sql > stiebel.dev.sql
 
-    shell_exec("LANG=C sed 's/$remoteSiteSearchStr/$localSite.$localDevTLD/g' $remoteDumpFile > $file");
+    shell_exec("/bin/bash -c \"LANG=C sed 's/$remoteSiteSearchStr/$localSite.$localDevTLD/g' $remoteDumpFile > $file\"");
 
     // Populate the local DB with the modified DB Dump
     shell_exec(
