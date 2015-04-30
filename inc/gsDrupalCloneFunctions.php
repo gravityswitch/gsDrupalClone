@@ -292,31 +292,31 @@ function populateDB($CLONE_CONF, $SITE_CONF, $dbLocalName)
     $dbRootUsername = $CLONE_CONF['dbRootUsername'];
     $dbRootPassword = $CLONE_CONF['dbRootPassword'];
 
-    $file = 'sqldump.sql';
+    $remoteDumpFile = "/tmp/$remoteSite.sql.tmp";
+    $file = "/tmp/$localSite.sql.tmp";
 
     // Build the search string with the dots escaped
     $remoteSiteSearchStr = preg_replace('/\./', '\\.', $remoteSite);
 
     // Dump DB from server
-    $remoteDump = shell_exec("drush @$remoteSite sql-dump");
+    // $remoteDump = shell_exec("drush @$remoteSite sql-dump");
+    shell_exec("drush @$remoteSite sql-dump > $remoteDumpFile");
+
     // Modify the DB dump from server to reflect the local env
     // Equiv of the following sed command:
-    $sql = preg_replace(
-        "/$remoteSiteSearchStr/", 
-        "$localSite.$localDevTLD", $remoteDump
-    );
+    // LANG=C sed 's/stiebel\.gravityswitch\.com/stiebel\.dev/g' stiebel.sql > stiebel.dev.sql
 
-    // Write the contents back to the file
-    file_put_contents($file, $sql);
+    shell_exec("LANG=C sed 's/$remoteSiteSearchStr/$localSite.$localDevTLD/g' $remoteDumpFile > $file");
 
     // Populate the local DB with the modified DB Dump
     shell_exec(
         "mysql -u $dbRootUsername \
-        -p$dbRootPassword $dbLocalName < sqldump.sql"
+        -p$dbRootPassword $dbLocalName < $file > /dev/null 2>&1"
     );
 
     // Delete the file created by the SQL dump
-    unlink("sqldump.sql");
+    unlink($remoteDumpFile);
+    unlink($file);
 }
 
 
