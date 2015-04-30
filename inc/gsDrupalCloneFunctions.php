@@ -166,7 +166,10 @@ function setupSettingsFile(
     $databases['default']['default']['driver'] = "mysql";
     $databases['default']['default']['prefix'] = "";
 
-    $results = "<?php\n\$databases = " .
+    // Needed for Drupal 6
+    $db_url = "mysql://$dbLocalUser:$dbLocalPassword@localhost/$dbLocalName";
+
+    $results = "<?php\n\$db_url = '$db_url';\n\$databases = " .
         var_export($databases, true) . ";\n";
 
     file_put_contents($settingsFile, $results);
@@ -306,8 +309,8 @@ function populateDB($CLONE_CONF, $SITE_CONF, $dbLocalName)
     // Equiv of the following sed command:
     // LANG=C sed 's/stiebel\.gravityswitch\.com/stiebel\.dev/g' stiebel.sql > stiebel.dev.sql
 
-    shell_exec("/bin/bash -c \"LANG=C sed 's/$remoteSiteSearchStr/$localSite.$localDevTLD/g' $remoteDumpFile > $file\"");
-
+    shell_exec("/bin/bash -c 'LC_ALL=C && LC_CTYPE=C && LANG=C && sed \"s/$remoteSiteSearchStr/$localSite.$localDevTLD/g\" $remoteDumpFile > $file'");
+    //shell_exec("/bin/bash -c \'LC_ALL=C && LC_CTYPE=C && LANG=C && sed 's/$remoteSiteSearchStr/$localSite.$localDevTLD/g' $remoteDumpFile > $file\'");
     // Populate the local DB with the modified DB Dump
     shell_exec(
         "mysql -u $dbRootUsername \
