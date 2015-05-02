@@ -298,6 +298,8 @@ function populateDB($CLONE_CONF, $SITE_CONF, $dbLocalName)
     // Build the search string with the dots escaped
     $remoteSiteSearchStr = preg_replace('/\./', '\\.', $remoteSite);
 
+    echo "Dumping remote database, this may take some time...\n";
+
     // Dump DB from server
     // $remoteDump = shell_exec("drush @$remoteSite sql-dump");
     shell_exec("drush @$remoteSite sql-dump > $remoteDumpFile");
