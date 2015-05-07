@@ -20,7 +20,7 @@ Before running this script there are a few things you need to have in place:
 
 If you don't have a local dev environment like this setup checkout this helpful tutorial (for OSX):
 
-    https://mallinson.ca/osx-web-development/
+  https://mallinson.ca/osx-web-development/
 
 
 ## Installation
