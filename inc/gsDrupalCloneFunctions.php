@@ -201,14 +201,12 @@ function syncFiles($CLONE_CONF, $SITE_CONF)
 
     // Copy all of the files from the server with rsync/scp
     echo "Syncing files, this may take a while...\n";
-    // shell_exec(
-    //     "drush -y rsync --include-conf @$remoteSite \
-    //     @$localSite.$localDevTLD"
-    // );
+
     shell_exec(
         "drush -y rsync  @$remoteSite \
         @$localSite.$localDevTLD"
     );
+
     // Need to make sure files are readable by local web server
     shell_exec("chmod -R 755 $baseDir/*");
 
@@ -308,11 +306,8 @@ function populateDB($CLONE_CONF, $SITE_CONF, $dbLocalName)
     shell_exec("drush @$remoteSite sql-dump > $remoteDumpFile");
 
     // Modify the DB dump from server to reflect the local env
-    // Equiv of the following sed command:
-    // LANG=C sed 's/stiebel\.gravityswitch\.com/stiebel\.dev/g' stiebel.sql > stiebel.dev.sql
-
     shell_exec("/bin/bash -c 'LC_ALL=C && LC_CTYPE=C && LANG=C && sed \"s/$remoteSiteSearchStr/$localSite.$localDevTLD/g\" $remoteDumpFile > $file'");
-    //shell_exec("/bin/bash -c \'LC_ALL=C && LC_CTYPE=C && LANG=C && sed 's/$remoteSiteSearchStr/$localSite.$localDevTLD/g' $remoteDumpFile > $file\'");
+
     // Populate the local DB with the modified DB Dump
     shell_exec(
         "mysql -u $dbRootUsername \
