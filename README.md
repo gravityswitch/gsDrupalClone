@@ -20,27 +20,27 @@ The process for copying a Drupal site is anything but straightforward.  Despite 
 ### General Config
 Overall configuration for the gsDrupalClone is set through the file `~/.gs_drupal_clone/conf/clone.conf.php`.  You will need to copy the `clone.conf.php.default` file over to `clone.conf.php` and then edit it to set the options for your local environment.
 
-`dbLocalServerName` This should be your local MySQL database server, most likely `localhost`
+* `dbLocalServerName`: This should be your local MySQL database server, most likely `localhost`.
 
-`dbRootUsername`: This should be the admin MySQL user (or a user with CREATE permissions)
+* `dbRootUsername`: This should be the admin MySQL user (or a user with CREATE permissions).
   
-`dbRootPassword`: The password for the above user
+* `dbRootPassword`: The password for the above user.
     
-`wwwroot`: This is the subdir within each of your local dev sites that contains the root for your web server to point to, for instance if you have a local site called *widgets.dev* the local directory may be at:
+* `wwwroot`: This is the subdir within each of your local dev sites that contains the root for your web server to point to, for instance if you have a local site called *widgets.dev* the local directory may be at:
   ```
   ~/Sites/widgets/
   ```
-and within that structure your wwwroot directory might be at:
+  and within that structure your wwwroot directory might be at:
   ```
   ~/Sites/widgets/htdocs
   ```
-In this case `wwwroot` should be set to `htdocs`.
+  In this case `wwwroot` should be set to `htdocs`.
     
-`localDevTLD`: This is the pseudo Top Level Directory of your local dev env, so if you access your sites at <sitename>.dev then `.dev` is what this should be set to.
+* `localDevTLD`: This is the pseudo Top Level Directory of your local dev env, so if you access your sites at <sitename>.dev then `.dev` is what this should be set to.
     
-`baseDir`: This is the base of where to find your local dev sites, so in the above example (for `wwwroot`) the `baseDir` would be `$_SERVER["HOME"] . "/Sites/"`.
+* `baseDir`: This is the base of where to find your local dev sites, so in the above example (for `wwwroot`) the `baseDir` would be `$_SERVER["HOME"] . "/Sites/"`.
     
-`drush`: This is the full path to the drush command on your system.
+* `drush`: This is the full path to the drush command on your system.
 
 
 ### Site Specific Config
