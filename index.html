@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Gsdrupalclone : A script for cloning a Drupal site from a live server to a local dev environment">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Gsdrupalclone</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/gravityswitch/gsDrupalClone">View on GitHub</a>
+
+          <h1 id="project_title">Gsdrupalclone</h1>
+          <h2 id="project_tagline">A script for cloning a Drupal site from a live server to a local dev environment</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/gravityswitch/gsDrupalClone/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/gravityswitch/gsDrupalClone/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a id="gsdrupalclone" class="anchor" href="#gsdrupalclone" aria-hidden="true"><span class="octicon octicon-link"></span></a>gsDrupalClone</h1>
+
+<h2>
+<a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h2>
+
+<p>The process for copying a Drupal site is anything but straightforward.  Despite numerous suggestions and guides out there it is difficult to find a complete workflow that actually works reliably for getting a site that's out there live copied into a local development environment where is can be accessed with a local domain name (i.e. - drupal.com -&gt; drupal.dev).</p>
+
+<h2>
+<a id="prequisites" class="anchor" href="#prequisites" aria-hidden="true"><span class="octicon octicon-link"></span></a>Prequisites</h2>
+
+<p>Before running this script there are a few things you need to have in place:</p>
+
+<ol>
+<li><p>A working Drush installation</p></li>
+<li>
+<p>SSH access, with public key access (no password entry), to the server of the site you want to clone.  If you don't have SSH keys setup check out this tutorial:</p>
+
+<p><a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys--2">https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys--2</a></p>
+</li>
+<li>
+<p>A local development environment setup with the following features:</p>
+
+<p>a. HTTP Server, MySQL, and PHP properly installed.</p>
+
+<p>b. DNSMasq and vhosts or other similar setup to allow for automatic new site creation.</p>
+</li>
+</ol>
+
+<p>If you don't have a local dev environment like this setup checkout this helpful tutorial (for OSX):</p>
+
+<p><a href="https://mallinson.ca/osx-web-development/">https://mallinson.ca/osx-web-development/</a></p>
+
+<h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<ol>
+<li><p>Create a directory called <code>.gs_drupal_clone</code> in your home directory.</p></li>
+<li>
+<p>Clone the github repo into the directory you just created:</p>
+
+<pre><code>git clone https://github.com/gravityswitch/gsDrupalClone.git
+</code></pre>
+</li>
+<li>
+<p>Make the file <code>gsDrupalClone</code> in the <code>bin/</code> directory executable:</p>
+
+<pre><code>chmod 755 bin/gsDrupalClone
+</code></pre>
+</li>
+<li><p>You can either add the <code>.gs_drupal_clone/bin</code> director to your path or simply run it from within that directory, up to you.</p></li>
+</ol>
+
+<h2>
+<a id="config-setup" class="anchor" href="#config-setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>Config Setup</h2>
+
+<h3>
+<a id="general-config" class="anchor" href="#general-config" aria-hidden="true"><span class="octicon octicon-link"></span></a>General Config</h3>
+
+<p>Overall configuration for the gsDrupalClone is set through the file <code>~/.gs_drupal_clone/conf/clone.conf.php</code>.  You will need to copy the <code>clone.conf.php.default</code> file over to <code>clone.conf.php</code> and then edit it to set the options for your local environment.</p>
+
+<ul>
+<li><p><code>dbLocalServerName</code>: This should be your local MySQL database server, most likely <code>localhost</code>.</p></li>
+<li><p><code>dbRootUsername</code>: This should be the admin MySQL user (or a user with CREATE permissions).</p></li>
+<li><p><code>dbRootPassword</code>: The password for the above user.</p></li>
+<li>
+<p><code>wwwroot</code>: This is the subdir within each of your local dev sites that contains the root for your web server to point to, for instance if you have a local site called <em>widgets.dev</em> the local directory may be at:</p>
+
+<pre><code>~/Sites/widgets/
+</code></pre>
+
+<p>and within that structure your wwwroot directory might be at:</p>
+
+<pre><code>~/Sites/widgets/htdocs
+</code></pre>
+
+<p>In this case <code>wwwroot</code> should be set to <code>htdocs</code>.</p>
+</li>
+<li><p><code>localDevTLD</code>: This is the pseudo Top Level Directory of your local dev env, so if you access your sites at .dev then <code>.dev</code> is what this should be set to.</p></li>
+<li><p><code>baseDir</code>: This is the base of where to find your local dev sites, so in the above example (for <code>wwwroot</code>) the <code>baseDir</code> would be <code>$_SERVER["HOME"] . "/Sites/"</code>.</p></li>
+<li><p><code>drush</code>: This is the full path to the drush command on your system.</p></li>
+</ul>
+
+<h3>
+<a id="site-specific-config" class="anchor" href="#site-specific-config" aria-hidden="true"><span class="octicon octicon-link"></span></a>Site Specific Config</h3>
+
+<p>Each site you will be replicating needs a config file.  The file should be located in <code>~/.gs_drupal_clone/conf</code> and should be named <code>&lt;sitename&gt;.conf.php</code> a default file named <code>conf/site.conf.php.default</code> has been provided for reference.  The options that need to be set for each site are as follows:</p>
+
+<ul>
+<li><p><code>remoteSite</code>: This is the fully qualified domain name for the site as used in Drupal, so if the site is <code>widgets.com</code> then <code>"widgets.com"</code> should be here.</p></li>
+<li><p><code>remoteUser</code>: This is the SSH username that you use to access this server.</p></li>
+<li>
+<p><code>remoteDir</code>: This is the full path to the root of the site on the remote server, so this might look like:</p>
+
+<pre><code>/var/www/widgets.com/htdocs
+</code></pre>
+
+<p>or something along those lines, this will vary depending on how you have your server setup.</p>
+</li>
+<li><p><code>localSite</code>: This is the name you want the site to have in your local dev environment.  In the case of the widgets.com example this would likely be <code>widgets</code>.</p></li>
+</ul>
+
+<h2>
+<a id="running-the-script" class="anchor" href="#running-the-script" aria-hidden="true"><span class="octicon octicon-link"></span></a>Running the Script</h2>
+
+<pre><code>$ ~/.gs_drupal_clone/bin/gsDrupalClone &lt;sitename&gt;
+</code></pre>
+
+<h2>
+<a id="the-process" class="anchor" href="#the-process" aria-hidden="true"><span class="octicon octicon-link"></span></a>The Process</h2>
+
+<p>This script attempts to make that process simple and repeatable and in doing so performs the following steps:</p>
+
+<ol>
+<li>Checks for the existance of the local dev directory (as specified in the config file) and creates it if needed.</li>
+<li>Generates a Drush Alias file and places it in your local .drush directory.</li>
+<li>Uses Drush (utilizing the alias file created in step 2) to rsync files, including config, from the server.</li>
+<li>Creates a local database with identical name and credentials to the server.</li>
+<li>Pulls down the database from the server.</li>
+<li>Does a search and replace within the database dump to change all references to the domain name to the new local domain name.</li>
+<li>Populates the local DB with the modified DB dump.</li>
+<li>Turns off clean URLs (on the local site only) and then turns them back on.</li>
+</ol>
+
+<p>This process allows sites to be cleanly, repeatably copied to a local envrionment with minimal effort required.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Gsdrupalclone maintained by <a href="https://github.com/gravityswitch">gravityswitch</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-62713224-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+
+  </body>
+</html>
