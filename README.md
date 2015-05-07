@@ -3,16 +3,39 @@
 ## Introduction
 The process for copying a Drupal site is anything but straightforward.  Despite numerous suggestions and guides out there it is difficult to find a complete workflow that actually works reliably for getting a site that's out there live copied into a local development environment where is can be accessed with a local domain name (i.e. - drupal.com -> drupal.dev).
 
+## Prequisites
+Before running this script there are a few things you need to have in place:
+
+1. A working Drush installation
+
+2. SSH access, with public key access (no password entry), to the server of the site you want to clone.  If you don't have SSH keys setup check out this tutorial:
+
+    https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys--2
+
+3. A local development environment setup with the following features:
+
+  a. HTTP Server, MySQL, and PHP properly installed.
+  
+  b. DNSMasq and vhosts or other similar setup to allow for automatic new site creation.
+
+If you don't have a local dev environment like this setup checkout this helpful tutorial (for OSX):
+
+    https://mallinson.ca/osx-web-development/
+
+
 ## Installation
   1. Create a directory called `.gs_drupal_clone` in your home directory.
+  
   2. Clone the github repo into the directory you just created:
   ```
   git clone https://github.com/gravityswitch/gsDrupalClone.git
   ```
+  
   3. Make the file `gsDrupalClone` in the `bin/` directory executable:
   ```
   chmod 755 bin/gsDrupalClone
   ```
+  
   4. You can either add the `.gs_drupal_clone/bin` director to your path or simply run it from within that directory, up to you.
 
 ## Config Setup
@@ -42,13 +65,24 @@ Overall configuration for the gsDrupalClone is set through the file `~/.gs_drupa
     
 * `drush`: This is the full path to the drush command on your system.
 
-
 ### Site Specific Config
-Each site you will be replicating needs a config file.  The file should be located in `~/.gs_drupal_clone/conf` and should be named `<sitename>.conf.php`.
+Each site you will be replicating needs a config file.  The file should be located in `~/.gs_drupal_clone/conf` and should be named `<sitename>.conf.php` a default file named `conf/site.conf.php.default` has been provided for reference.  The options that need to be set for each site are as follows:
+
+* `remoteSite`: This is the fully qualified domain name for the site as used in Drupal, so if the site is `widgets.com` then `"widgets.com"` should be here.
+
+* `remoteUser`: This is the SSH username that you use to access this server.
+
+* `remoteDir`: This is the full path to the root of the site on the remote server, so this might look like:
+  ```
+  /var/www/widgets.com/htdocs
+  ```
+  or something along those lines, this will vary depending on how you have your server setup.
+
+* `localSite`: This is the name you want the site to have in your local dev environment.  In the case of the widgets.com example this would likely be `widgets`.
 
 ## Running the Script
 ```
-$ gsDrupalClone <sitename>
+$ ~/.gs_drupal_clone/bin/gsDrupalClone <sitename>
 ```
 
 ## The Process
