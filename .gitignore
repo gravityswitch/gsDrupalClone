@@ -1,3 +1,13 @@
+/*
+!/conf
+!/bin
+!/inc
+!/LICENSE
+!/README.md
+!/.gitignore
 /conf/*
 !/conf/*.default
-/bin/*.tmp
+/bin/*
+!/bin/gsDrupalClone
+/inc/*
+!/inc/gsDrupalCloneFunctions.php
