@@ -82,10 +82,10 @@ if ($argc != 2) {
 
     // Setup the local database - this will blow away any current DB with
     // the same name
-    //setupDB($CLONE_CONF, $dbLocalName, $dbLocalUser, $dbLocalPassword);
+    setupDB($CLONE_CONF, $dbLocalName, $dbLocalUser, $dbLocalPassword);
 
     // Populate the local database from the remote
-    //populateDB($CLONE_CONF, $SITE_CONF, $dbLocalName);
+    populateDB($CLONE_CONF, $SITE_CONF, $dbLocalName);
 
     // Turn off clean URLs locally and turn back on - this
     // is necessary for proper operation in the new env
