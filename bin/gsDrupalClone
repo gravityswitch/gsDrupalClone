@@ -31,7 +31,7 @@ require $configDir . "clone.conf.php";
 // Read in command line arguments
 if ($argc < 2) {
     // Show usage if wrong number of args
-    echo "\nUsage: $argv[0] <sitename> [-s]\n\n";
+    echo "\nUsage: $argv[0] <sitename> [-e]\n\n";
 
     exit;
 
@@ -41,7 +41,6 @@ if ($argc < 2) {
 
     if ($argc > 2) {
         $skipFilesFlag = $argv[2];
-        echo("SKIP FILES = " . $argv[2]);
     } else {
         $skipFilesFlag = "";
     }
@@ -58,7 +57,7 @@ if ($argc < 2) {
 
     // Check to see if we are skipping the sites/default/files directory to save download
     // time
-    if ($skipFilesFlag == "-s") {
+    if ($skipFilesFlag == "-e") {
         $skipFiles = true;
     } else {
         $skipFiles = false;
