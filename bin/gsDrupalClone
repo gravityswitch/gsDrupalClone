@@ -29,15 +29,22 @@ require $includeDir . "gsDrupalCloneFunctions.php";
 require $configDir . "clone.conf.php";
 
 // Read in command line arguments
-if ($argc != 2) {
+if ($argc < 2) {
     // Show usage if wrong number of args
-    echo "\nUsage: $argv[0] <sitename>\n\n";
+    echo "\nUsage: $argv[0] <sitename> [-s]\n\n";
 
     exit;
 
 } else {
     // The site name should be the only argument passed into the script
     $siteName = $argv[1];
+
+    if ($argc > 2) {
+        $skipFilesFlag = $argv[2];
+        echo("SKIP FILES = " . $argv[2]);
+    } else {
+        $skipFilesFlag = "";
+    }
 
     if (!file_exists($configDir . "$siteName.conf.php")) {
         echo "ERROR! " . $configDir . "$siteName.conf.php" . " does not exist.\n\n";
@@ -48,6 +55,14 @@ if ($argc != 2) {
 
     // Include the site specific configuration
     include $configDir . "$siteName.conf.php";
+
+    // Check to see if we are skipping the sites/default/files directory to save download
+    // time
+    if ($skipFilesFlag == "-s") {
+        $skipFiles = true;
+    } else {
+        $skipFiles = false;
+    }
 
     // Make sure our directories exist
     setupDirs($CLONE_CONF, $SITE_CONF);
@@ -75,7 +90,7 @@ if ($argc != 2) {
 
     // Get the files from the remote server and copy to the
     // local env
-    syncFiles($CLONE_CONF, $SITE_CONF);
+    syncFiles($CLONE_CONF, $SITE_CONF, $skipFiles);
 
     // Create the settings.php file
     setupSettingsFile($CLONE_CONF, $SITE_CONF, $dbLocalName, $dbLocalUser, $dbLocalPassword);

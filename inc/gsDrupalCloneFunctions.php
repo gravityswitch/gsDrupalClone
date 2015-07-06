@@ -126,8 +126,11 @@ function setupAliasFile($CLONE_CONF, $SITE_CONF)
  * Creates and sets up the drush alias file for the remote and local envs in the
  * ~/.drush directory
  *
- * @param array $CLONE_CONF Overall config array
- * @param array $SITE_CONF  Site specific config array
+ * @param array $CLONE_CONF      Overall config array
+ * @param array $SITE_CONF       Site specific config array
+ * @param array $dbLocalName     Local MySQL DB Name
+ * @param array $dbLocalUser     Local MySQL User Name
+ * @param array $dbLocalPassword Local MySQL Password
  *
  * @return none
  */
@@ -189,7 +192,7 @@ function setupSettingsFile(
  *
  * @return none
  */
-function syncFiles($CLONE_CONF, $SITE_CONF)
+function syncFiles($CLONE_CONF, $SITE_CONF, $skipFiles)
 {
 
     $remoteSite = $SITE_CONF['remoteSite'];
@@ -202,16 +205,22 @@ function syncFiles($CLONE_CONF, $SITE_CONF)
     // Copy all of the files from the server with rsync/scp
     echo "Syncing files, this may take a while...\n";
 
-    shell_exec(
-        "drush -y rsync  @$remoteSite \
-        @$localSite.$localDevTLD"
-    );
+    if (!$skipFiles) {
+        shell_exec(
+            "drush -y rsync @$remoteSite \
+            @$localSite.$localDevTLD"
+        );
+    } else {
+        shell_exec(
+            "drush -y rsync --exclude=sites/default/files/* @$remoteSite \
+            @$localSite.$localDevTLD"
+        );        
+    }
 
     // Need to make sure files are readable by local web server
     shell_exec("chmod -R 755 $baseDir/*");
 
     echo "Files synced [OK]\n";
-
 }
 
 
@@ -306,17 +315,21 @@ function populateDB($CLONE_CONF, $SITE_CONF, $dbLocalName)
     shell_exec("drush @$remoteSite sql-dump > $remoteDumpFile");
 
     // Modify the DB dump from server to reflect the local env
-    shell_exec("/bin/bash -c 'LC_ALL=C && LC_CTYPE=C && LANG=C && sed \"s/$remoteSiteSearchStr/$localSite.$localDevTLD/g\" $remoteDumpFile > $file'");
+#    shell_exec(
+#        "/bin/bash -c 'LC_ALL=C && LC_CTYPE=C && LANG=C && \
+#        sed \"s/$remoteSiteSearchStr/$localSite.$localDevTLD/g\" \
+#        $remoteDumpFile > $file'"
+#    );
 
     // Populate the local DB with the modified DB Dump
     shell_exec(
         "mysql -u $dbRootUsername \
-        -p$dbRootPassword $dbLocalName < $file > /dev/null 2>&1"
+        -p$dbRootPassword $dbLocalName < $remoteDumpFile > /dev/null 2>&1"
     );
 
     // Delete the file created by the SQL dump
     unlink($remoteDumpFile);
-    unlink($file);
+    // unlink($file);
 }
 
 
