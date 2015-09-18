@@ -1,7 +1,7 @@
 # gsDrupalClone
 
 ## Introduction
-The process for copying a Drupal site is anything but straightforward.  Despite numerous suggestions and guides out there it is difficult to find a complete workflow that actually works reliably for getting a site that's out there live copied into a local development environment where is can be accessed with a local domain name (i.e. - drupal.com -> drupal.dev).
+The process for copying a Drupal site is anything but straightforward.  Despite numerous suggestions and guides out there it is difficult to find a complete workflow that actually works reliably for getting a site that's out there live copied into a local development environment where is can be accessed with a local domain name (i.e. - drupal.com -> drupal.dev). Add the -e flag to exclude the sites/all/default/files directory
 
 ## Prequisites
 Before running this script there are a few things you need to have in place:
